@@ -1,0 +1,13 @@
+*
+!*/
+!*.cpp
+!*.hpp
+!*.h
+!*.py
+!*.txt
+!*.csv
+!*.xml
+!*.png
+!*.jpg
+!.gitignore
+
