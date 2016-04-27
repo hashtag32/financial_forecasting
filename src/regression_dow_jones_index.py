@@ -1,33 +1,17 @@
 ﻿'''
-This script perfoms the basic process for applying a machine learning
-algorithm to a dataset using Python libraries.
+This script perfoms the basic process for forecasting stock values with 
+the help of ML algorithms.
+There are features like percent_change_price, days_to_next_dividend, etc. already provided. 
+These will be analysed and compared with the regression evaluation of the stockvalues (without given features)
 
-The four steps are:
-   1. Download a dataset (using pandas)
+The program is divided into 4 steps:
+   1. Readin the provided dataset (using pandas)
    2. Process the numeric data (using numpy)
    3. Train and evaluate learners (using scikit-learn)
    4. Plot and compare results (using matplotlib)
 
-
-The data is downloaded from URL, which is defined below. As is normal
-for machine learning problems, the nature of the source data affects
-the entire solution. When you change URL to refer to your own data, you
-will need to review the data processing steps to ensure they remain
-correct.
-
-============
-Example Data
-============
-The example is from http://mldata.org/repository/data/viewslug/stockvalues/
-It contains stock prices and the values of three indices for each day
-over a five year period. See the linked page for more details about
-this data set.
-
-This script uses regression learners to predict the stock price for
-the second half of this period based on the values of the indices. This
-is a naive approach, and a more robust method would use each prediction
-as an input for the next, and would predict relative rather than
-absolute values.
+For more information about the dataset see the source: 
+Dynamic-Radius Species-Conserving Genetic Algorithm for the Financial Forecasting of Dow Jones Index Stocks
 '''
 
 # Remember to update the script for the new data when you change this URL

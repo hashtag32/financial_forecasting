@@ -14,20 +14,17 @@ For more information about the dataset: http://mldata.org/repository/data/viewsl
 '''
 
 
-#inputdata
+#inputdata; names of the stocks are unimportant. (aerospace companies)
 datafilename='input/stockvalues.csv'
-# names of the stocks are unimportant. (aerospace companies)
 
-# This is the column of the sample data to predict.
-# Try changing it to other integers between 1 and 155.
-TARGET_COLUMN = 32
+#switches
+switch_plot_input=0
 
 from pandas import read_table
 from sklearn import preprocessing, cross_validation
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-
 
 try:
     #optimizing the plotting (if package seaborn is installed)
@@ -51,37 +48,48 @@ def readin_data():
         index_col=None,         #each row get its own number
         header=None,            #each column get its own number
     )
-    print frame
-    
-    return frame
+    dates=np.asarray(frame[0])
 
-    # Return a subset of the columns
-    
-    return frame[[156, 157, 158, TARGET_COLUMN]]
+    dataDict={}
+
+    #iterate over the number of columns, but start from 1 (just the data, not the dates)
+    j=0
+    dataList=np.array(frame[1:-1],dtype=np.float)
+    print dataList
+    time.sleep(50)
+    #print dataList
+    #for i in range(1,frame.shape[1]):
+    #    dataList=np.asarray(frame[i]) #data from one company over the whole dataset
+    #    dataDict[j]=dataList 
+    #    j+=1
+    #    if(switch_plot_input):
+    #        plt.plot(dataList)
+    #        plt.show()
+
+    return dates,dataDict
 
 
 # =====================================================================
 
 
-def get_features_and_labels(frame):
+def get_features_and_labels(dataDict):
     '''
     Transforms and scales the input data and returns numpy arrays for
     training and testing inputs and targets.
     '''
 
     # Convert values to floats and into a numpy array (is required by sklearn)
-    arr = np.array(frame, dtype=np.float)
-
-    # Normalize the entire data set (is required for some regression ml methods)
-    #from sklearn.preprocessing import StandardScaler, MinMaxScaler
-    arr = preprocessing.MinMaxScaler().fit_transform(arr)
+    #arr = np.array(frame, dtype=np.float)
+    for dataList in dataDict:
+        # Normalize the entire data set (is required for some regression ml methods)
+        #from sklearn.preprocessing import StandardScaler, MinMaxScaler
+        arr = preprocessing.MinMaxScaler().fit_transform(arr)
     
-    # Use 50% of the data for training, but we will test against the
-    # entire set
-    X, y = arr[:, :-1], arr[:, -1]
-    X_train, _, y_train, _ = cross_validation.train_test_split(X, y, test_size=0.1)
-    #last column is the target
-    X_test, y_test = X,y
+        # Use 80% of the data for training and test with the rest
+        #X, y = arr[:, :-1], arr[:, -1]
+        X_train, _, y_train, _ = cross_validation.train_test_split(X, y, test_size=0.8)
+        #last column is the target
+        X_test, y_test = X,y
  
     # Imputation=if missing values are in the dataset (in this set are no invalid elements)
     #from sklearn.preprocessing import Imputer
@@ -112,8 +120,8 @@ def get_features_and_labels(frame):
 
 def evaluate_learner(X_train, X_test, y_train, y_test):
     '''
-    Run multiple times with different algorithms to get an idea of the
-    relative performance of each configuration.
+    Run multiple times with different algorithms to evaluate 
+    the performance relatively to each other 
 
     Returns a sequence of tuples containing:
         (title, expected values, actual values)
@@ -123,12 +131,14 @@ def evaluate_learner(X_train, X_test, y_train, y_test):
     # Use a support vector machine for regression
     from sklearn.svm import SVR
 
-    # Train using a radial basis function
-    svr = SVR(kernel='rbf', gamma=0.1)
-    svr.fit(X_train, y_train)
-    y_pred = svr.predict(X_test)
-    r_2 = svr.score(X_test, y_test)
-    yield 'RBF Model ($R^2={:.3f}$)'.format(r_2), y_test, y_pred
+    clfList=[SVR(kernel='rbf', gamma=0.1), SVR(kernel='linear'), SVR(kernel='poly', degree=2)]
+
+    for clf in clfList:
+
+        svr.fit(X_train, y_train)
+        y_pred = svr.predict(X_test)
+        r_2 = svr.score(X_test, y_test)
+        yield 'RBF Model ($R^2={:.3f}$)'.format(r_2), y_test, y_pred
 
     # Train using a linear kernel
     svr = SVR(kernel='linear')
@@ -228,11 +238,11 @@ def plot(results):
 if __name__ == '__main__':
     # Readin the dataset
     print("Readin the dataset {}".format(datafilename))
-    frame = readin_data()
+    dates,dataDict = readin_data()
 
     # Process data into feature and label arrays
     print("Processing {} samples with {} attributes".format(len(frame.index), len(frame.columns)))
-    X_train, X_test, y_train, y_test = get_features_and_labels(frame)
+    X_train, X_test, y_train, y_test = get_features_and_labels(dataDict)
 
     # Evaluate multiple regression learners on the data
     print("Evaluating regression learners")
